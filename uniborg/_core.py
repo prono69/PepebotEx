@@ -73,16 +73,16 @@ async def install_plug_in(event):
         return
     if event.reply_to_msg_id:
         try:
-            downloaded_file_name = await event.client.download_media(  # pylint:disable=E0602
+            downloaded_file_name = await event.client.download_media(
                 await event.get_reply_message(),
-                borg._plugin_path  # pylint:disable=E0602
+                borg.n_plugin_path  # pylint:disable=E0602
             )
             if "(" not in downloaded_file_name:
                 borg.load_plugin_from_file(downloaded_file_name)  # pylint:disable=E0602
-                await event.edit("Gandu, Instulled Pligon `{}`".format(os.path.basename(downloaded_file_name)))
+                await event.edit("Installed Plugin `{}`".format(os.path.basename(downloaded_file_name)))
             else:
                 os.remove(downloaded_file_name)
-                await event.edit("oh! Mkc, pligon instull na hove.")
+                await event.edit("Already installed. Can't install again.")
         except Exception as e:  # pylint:disable=C0103,W0703
             await event.edit(str(e))
             os.remove(downloaded_file_name)
