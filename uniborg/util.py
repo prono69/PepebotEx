@@ -6,9 +6,12 @@ import math
 import os
 import time
 import re
+from re import findall, match
+from typing import list
 from telethon import events
 from telethon.tl.functions.messages import GetPeerDialogsRequest
-from alive_progress import alive_bar, config_handler
+from telethon.events import NewMessage
+from telethon.tl.custom import Message
 
 # the secret configuration specific things
 ENV = bool(os.environ.get("ENV", False))
@@ -168,3 +171,30 @@ def time_formatter(milliseconds: int) -> str:
         ((str(seconds) + "s, ") if seconds else "") + \
         ((str(milliseconds) + "ms, ") if milliseconds else "")
     return tmp[:-2]
+
+
+def parse_arguments(message: str, valid: List[str]) -> (dict, str):
+    options = {}
+
+    # Handle boolean values
+    for opt in findall(r'([.!]\S+)', message):
+        if opt[1:] in valid:
+            if opt[0] == '.':
+                options[opt[1:]] = True
+            elif opt[0] == '!':
+                options[opt[1:]] = False
+            message = message.replace(opt, '')
+
+    # Handle key/value pairs
+    for opt in findall(r'(\S+):(?:"([\S\s]+)"|(\S+))', message):
+        key, val1, val2 = opt
+        value = val2 or val1[1:-1]
+        if key in valid:
+            if value.isnumeric():
+                value = int(value)
+            elif match(r'[Tt]rue|[Ff]alse', value):
+                match(r'[Tt]rue', value)
+            options[key] = value
+            message = message.replace(f"{key}:{value}", '')
+
+    return options, message.strip()
