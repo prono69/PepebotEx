@@ -7,7 +7,7 @@ import os
 import time
 import re
 from re import findall, match
-from typing import list
+from typing import List
 from telethon import events
 from telethon.tl.functions.messages import GetPeerDialogsRequest
 from telethon.events import NewMessage
